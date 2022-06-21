@@ -2,10 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { randomUUID } = require('crypto');
 const readFileFunction = require('./helpers/readFile');
-const loginMiddleware = require('./middlewares/loginMiddleware');
 const authorizationMiddleware = require('./middlewares/authorizationMiddleware');
 const nameMiddleware = require('./middlewares/nameMiddleware');
 const writeFileFunction = require('./helpers/writeFile');
+const loginMiddleware = require('./middlewares/loginMiddleWare');
 
 const app = express();
 app.use(bodyParser.json());
