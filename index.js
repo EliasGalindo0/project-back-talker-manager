@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { randomUUID } = require('crypto');
+const crypto = require('crypto');
 const readFileFunction = require('./helpers/readFile');
 const authorizationMiddleware = require('./middlewares/authorizationMiddleware');
 const nameMiddleware = require('./middlewares/nameMiddleware');
@@ -30,18 +30,17 @@ app.get('/talker/:id', async (req, res) => {
 
 // POST /login
 app.post('/login', loginMiddleware, (_req, res) => {
-  const token = randomUUID().split('-').join('').substring(0, 16);
+  const token = crypto.randomBytes(8).toString('hex');
   res.status(HTTP_OK_STATUS).json({ token });
 });
 
 // POST /talker
 app.post('/talker', authorizationMiddleware, nameMiddleware, async (req, res) => {
-  const { name, age, talk, watchedAt, rate } = req.body;
-
   const talkers = await readFileFunction();
-  talkers.push({ id: talkers.length + 1, name, age, talk, watchedAt, rate });
+  const newTalker = { ...req.body, id: talkers.length + 1 };
+  talkers.push(newTalker);
   writeFileFunction(talkers);
-  res.status(200).json(talkers);
+  res.status(200).json(newTalker);
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
