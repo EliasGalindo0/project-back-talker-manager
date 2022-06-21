@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const readFileFunction = require('./helpers/readFile');
 
 const app = express();
 app.use(bodyParser.json());
@@ -10,9 +10,17 @@ const PORT = '3000';
 
 // GET all talkers
 app.get('/talker', async (_req, res) => {
-  const data = fs.readFileSync('./talker.json', 'utf-8');
-  const talkersList = JSON.parse(data);
+  const talkersList = await readFileFunction();
   res.status(HTTP_OK_STATUS).json(talkersList);
+});
+
+// GET /talker/:id
+app.get('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFileFunction();
+  const talkerID = talkers.find((person) => person.id === Number(id));
+  if (talkerID) return res.status(HTTP_OK_STATUS).json(talkerID);
+  return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
