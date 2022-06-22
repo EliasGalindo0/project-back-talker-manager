@@ -2,10 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const readFileFunction = require('./helpers/readFile');
-const authorizationMiddleware = require('./middlewares/authorizationMiddleware');
-const nameMiddleware = require('./middlewares/nameMiddleware');
 const writeFileFunction = require('./helpers/writeFile');
 const loginMiddleware = require('./middlewares/loginMiddleWare');
+const tokenValidate = require('./middlewares/authorizationMiddleware');
+const { nameValidate,
+  ageValidate,
+  talkerValidate,
+  rateValidate,
+  watchedAtValidate } = require('./middlewares/validationMiddleware');
 
 const app = express();
 app.use(bodyParser.json());
@@ -35,12 +39,18 @@ app.post('/login', loginMiddleware, (_req, res) => {
 });
 
 // POST /talker
-app.post('/talker', authorizationMiddleware, nameMiddleware, async (req, res) => {
+app.post('/talker',
+tokenValidate,
+nameValidate,
+ageValidate,
+talkerValidate,
+rateValidate,
+watchedAtValidate, async (req, res) => {
   const talkers = await readFileFunction();
   const newTalker = { ...req.body, id: talkers.length + 1 };
   talkers.push(newTalker);
   writeFileFunction(talkers);
-  res.status(200).json(newTalker);
+  res.status(201).json(newTalker);
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
