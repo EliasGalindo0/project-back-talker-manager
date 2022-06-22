@@ -4,12 +4,13 @@ const crypto = require('crypto');
 const readFileFunction = require('./helpers/readFile');
 const writeFileFunction = require('./helpers/writeFile');
 const loginMiddleware = require('./middlewares/loginMiddleWare');
-const tokenValidate = require('./middlewares/authorizationMiddleware');
-const { nameValidate,
+const {
+  nameValidate,
   ageValidate,
   talkerValidate,
   rateValidate,
   watchedAtValidate } = require('./middlewares/validationMiddleware');
+const handleAuthorization = require('./middlewares/authorizationMiddleware');
 
 const app = express();
 app.use(bodyParser.json());
@@ -40,7 +41,7 @@ app.post('/login', loginMiddleware, (_req, res) => {
 
 // POST /talker
 app.post('/talker',
-tokenValidate,
+handleAuthorization,
 nameValidate,
 ageValidate,
 talkerValidate,
@@ -51,6 +52,27 @@ watchedAtValidate, async (req, res) => {
   talkers.push(newTalker);
   writeFileFunction(talkers);
   res.status(201).json(newTalker);
+});
+
+// PUT /talker/:id
+app.put('/talker/:id',
+handleAuthorization,
+nameValidate,
+ageValidate,
+talkerValidate,
+rateValidate,
+watchedAtValidate, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFileFunction();
+  
+  // encontra o id da query
+  const talkerIndex = talkers.findIndex((talker) => talker.id === Number(id));
+  const talkerEdited = { ...req.body, id: Number(id) };
+  
+  // atualiza as informações e sobrescreve
+  talkers[talkerIndex] = { ...talkers[talkerIndex], ...req.body };
+  writeFileFunction(talkers);
+  res.status(200).json(talkerEdited);
 });
 
 // não remova esse endpoint, e para o avaliador funcionar

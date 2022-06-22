@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+const handleAuthorization = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization) {
     return res.status(401).json({ message: 'Token não encontrado' });
@@ -8,3 +8,5 @@ module.exports = (req, res, next) => {
   }
   return next();
 };
+
+module.exports = handleAuthorization;
