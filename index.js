@@ -75,6 +75,18 @@ watchedAtValidate, async (req, res) => {
   res.status(200).json(talkerEdited);
 });
 
+// DELETE /talker/:id
+app.delete('/talker/:id', handleAuthorization, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFileFunction();
+
+  const talkerIndex = talkers.findIndex((talker) => talker.id === Number(id));
+  talkers.splice(talkerIndex, 1);
+
+  writeFileFunction(talkers);
+  res.sendStatus(204);
+});
+
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
