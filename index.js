@@ -21,7 +21,23 @@ const PORT = '3000';
 // GET all talkers
 app.get('/talker', async (_req, res) => {
   const talkersList = await readFileFunction();
-  res.status(HTTP_OK_STATUS).json(talkersList);
+
+  if (talkersList) {
+    return res.status(HTTP_OK_STATUS).json(talkersList);
+  }
+    return res.status(HTTP_OK_STATUS).json([]);
+});
+
+// GET /talker/search?q=searchTerm
+app.get('/talker/search', handleAuthorization, async (req, res) => {
+  const { q } = req.query;
+  const talkersList = await readFileFunction();
+
+  if (!q) {
+    return res.status(HTTP_OK_STATUS).json(talkersList);
+  }
+  const result = talkersList.filter((talker) => talker.name.includes(q));
+  return res.status(HTTP_OK_STATUS).json(result);
 });
 
 // GET /talker/:id
@@ -72,7 +88,7 @@ watchedAtValidate, async (req, res) => {
   // atualiza as informações e sobrescreve
   talkers[talkerIndex] = { ...talkers[talkerIndex], ...req.body };
   writeFileFunction(talkers);
-  res.status(200).json(talkerEdited);
+  res.status(HTTP_OK_STATUS).json(talkerEdited);
 });
 
 // DELETE /talker/:id
